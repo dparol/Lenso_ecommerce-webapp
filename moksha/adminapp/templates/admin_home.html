@@ -1,0 +1,7 @@
+hello
+
+<form class="" action="{% url 'user_logout'  %}" method='POST'>
+    {% csrf_token %}
+    <a href="{% url 'user_logout' %}"class="btn btn-secondary ">LOGOUT</a>
+
+</form>

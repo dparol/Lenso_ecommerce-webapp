@@ -1,0 +1,87 @@
+{% extends 'mkhome/userprofilebase.html' %} 
+{% load static %}
+{% block content %}
+	<main class="col-md-9">
+		<article class="card" >
+		<header class="card-header">
+			<strong class="d-inline-block mr-3">logged as:</strong>
+			<span>{{user.first_name }}</span>
+		</header>
+        <div class="card-body">
+			<div class="text-right">
+			{% if userprofile.profile_picture %}
+				<img src="{{userprofile.profile_picture.url}}" alt="Profile Picture" width="100" style="border-radius:50px;" >
+			{% endif %}
+			</div>
+			<div class="row"> 
+			<div class="col-md-12">
+                <form action="" method="POST" enctype="multipart/form-data" id="post-form">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+						<label>First Name</label>
+						{{user_form.first_name}}
+                    </div>
+					 <div class="form-group col-md-6">
+						<label>Last Name</label>
+						{{user_form.last_name}}
+                    </div>
+				</div>
+				 <div class="form-row">
+                    <div class="form-group col-md-6">
+						<label>Phone Number</label>
+						{{user_form.phone_number}}
+                    </div>
+					
+						<div class="form-group col-md-6">
+                         
+                                <label for="lname">Profile Picture</label>
+								<img src="" id="profile_picture" style="width:100px;">
+                              <div class="col-75">
+                                {{profile_form.profile_picture}}
+                              </div>
+                        </div>
+                 
+                       
+				</div>
+				 <div class="form-group">
+					<label>Address Line1</label>
+					{{profile_form.address_line_1}}
+                </div>
+				<div class="form-group">
+					<label>Address Line2</label>
+					{{profile_form.address_line_2}}
+            	</div>
+				<div class="form-row">
+                    <div class="form-group col-md-4">
+						<label>City</label>
+						{{profile_form.city}}
+                    </div>
+					 <div class="form-group col-md-4">
+						<label>State</label>
+						{{profile_form.state}}
+                    </div>
+					 <div class="form-group col-md-4">
+						<label>Country</label>
+						{{profile_form.country}}
+                    </div>
+				</div>
+							<div class="form-group">
+                            <button style="margin-top: 10px; color: white; border-color: white;"
+                                            class="btn btn-primary " id="confirm-btn"
+                                            type="submit">SUBMIT</button> 
+							</div>
+
+												 
+							</div>
+							</div>
+
+
+                </form>
+				</div>
+			</div> <!-- row.// -->
+		</div> <!-- card-body .// -->
+
+		</article> <!-- order-group.// --> 
+	</main>
+{% endblock %}

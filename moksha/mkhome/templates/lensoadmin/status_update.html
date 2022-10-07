@@ -1,0 +1,65 @@
+{% extends 'lensoadmin/adminbase.html' %}
+{% load static %}
+{% block content %}
+
+<form method='POST' action="" enctype="multipart/form-data" class="m-5">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group">
+            <label for="inputAddress">order</label>
+           {{form.order}}
+          </div>
+    <div class="form-group">
+      <label for="inputAddress">order_confirmed</label>
+     {{form.order_confirmed}}
+    </div>
+   
+      <div class="form-group">
+        <label>order_confirmed_date</label>
+        {{form.order_confirmed_date}}
+      </div>
+
+      <div class="form-group">
+        <label>Shipped</label>
+        {{form.Shipped}}
+      </div>
+      <div class="form-group">
+        <label>Shipped_date</label>
+        {{form.Shipped_date}}
+      </div>
+      <div class="form-group">
+        <label>out_for_delivery</label>
+        {{form.out_for_delivery}}
+      </div>
+      <div class="form-group">
+        <label>out_for_delivery_date</label>
+        {{form.out_for_delivery_date}}
+      </div>
+      <div class="form-group">
+        <label>delivered</label>
+        {{form.delivered}}
+      </div>
+      <div class="form-group">
+        <label>delivered_date</label>
+        {{form.delivered_date}}
+      </div>
+      <div class="form-group">
+        <label>Cancelled</label>
+        {{form.Cancelled}}
+      </div>
+      <div class="form-group">
+        <label>cancelled_date</label>
+        {{form.cancelled_date}}
+      </div>
+      <div class="form-group">
+        <label>is_active</label>
+        {{form.is_active}}
+      </div>
+     
+      
+  
+   
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form> 
+{% endblock %}

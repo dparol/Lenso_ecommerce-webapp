@@ -1,0 +1,39 @@
+ {% extends 'mkhome/userprofilebase.html' %} 
+ {% load static %}
+ {% block content %}
+<main class="col-md-9">
+    <article class="card" >
+    <header class="card-header">
+        <strong class="d-inline-block mr-3">logged as:</strong>
+        <span>{{user.first_name }}</span>
+    </header>
+    <div class="row p-3 ">
+        <div class="col-sm-6 " >
+          <div class="card" style="height: 195px;">
+            <div class="card-body">
+              <h5 class="card-title">Total order</h5>
+              <p class="card-text">{{orders_count}}</p>
+              <a href="#" class="btn btn-warning">view order</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" class="rounded-circle" style="width: 50px;"
+                alt="Avatar" />
+              <p class="card-text">{{user.first_name}}<br>
+            {{user.email}}<br>
+        {{user.phone}}</p>
+              <a href="#" class="btn btn-warning">Edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="table-responsive">
+    
+    </div> <!-- table-responsive .end// -->
+    </article> <!-- order-group.// --> 
+</main>
+{% endblock %}

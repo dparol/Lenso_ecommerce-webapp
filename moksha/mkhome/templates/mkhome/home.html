@@ -1,0 +1,15 @@
+hello
+
+{% if user.id is  None %}
+
+  
+    <a href="{% url 'login' %}"class="btn btn-secondary ">sign in</a>
+    <a href="{% url 'register' %}"class="btn btn-secondary ">Register</a>
+
+{% else %}
+    <span>welcome {{ user.first_name }}</span>
+    <a href="#"class="btn btn-secondary ">Dash board</a>
+    <a href="{% url 'logout' %}"class="btn btn-secondary ">LOGOUT</a>
+
+
+{% endif %}

@@ -1,0 +1,58 @@
+{% extends 'lensoadmin/adminbase.html' %}
+{% load static %}
+{% block content %}
+   
+
+<!-- ========================= SECTION CONTENT ========================= -->
+
+	<main class="col-md-9">
+		<article class="card" >
+		<header class="card-header">
+			<strong class="d-inline-block mr-3">logged as:</strong>
+			<span>{{user.first_name }}</span>
+		</header>
+        <div class="row p-3 ">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Billing name</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Order total</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for order in single_orders %}
+                  <tr>
+               
+                    <td></td>
+                        {% comment %} <a href="{% url 'order_detail' order.order_number %}"></a></td> {% endcomment %}
+                    <td>{{order.user.first_name}}</td>
+                    <td>{{order.user.phone_number}}</td>
+                    
+
+                     <td> {{order.order.order_number}}</td>
+                     {% comment %} <td><a href="{% 'order_summery' order.order_number %}">{{order.order_number}}</a></td> {% endcomment %}
+
+                    <td>{{order.created_at}}</td>
+
+                  </tr>
+                  {% endfor %}
+                 
+                </tbody>
+              </table>
+        </diiv>
+            
+		<div class="table-responsive">
+		
+		</div> <!-- table-responsive .end// -->
+		</article> <!-- order-group.// --> 
+	</main>
+</div> <!-- row.// -->
+</div>
+
+
+</section>
+      
+{% endblock %}

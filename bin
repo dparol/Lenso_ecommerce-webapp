@@ -1,0 +1,835 @@
+# Create your views here.
+from moksha.orders import views
+
+
+def place_order(request,total=0,quantity=0):
+    current_user=request.user
+
+   
+
+    cart_items=CartItem.objects.filter(user=current_user)
+    cart_count=cart_items.count()
+    if cart_count<=0:
+        return redirect('store')
+
+    grand_total=0
+    tax=0
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax
+
+    order_id=''
+    pay_instence=''
+    order_status_instence=''
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        payment=request.POST['payment']
+        data=''
+        if form.is_valid():
+            data = Order()
+            data.user=current_user
+            data.first_name = form.cleaned_data['first_name']
+            data.last_name = form.cleaned_data['last_name']
+            data.phone = form.cleaned_data['phone']
+            data.email = form.cleaned_data['email']
+            data.address_line_1 = form.cleaned_data['address_line_1']
+            data.address_line_2 = form.cleaned_data['address_line_2']
+            data.country = form.cleaned_data['country']
+            data.state = form.cleaned_data['state']
+            data.city = form.cleaned_data['city']
+            data.post_code = form.cleaned_data['post_code']
+
+            data.order_total = grand_total
+            data.tax = tax
+            data.ip=request.META.get('REMOTE_ADDR')
+            # data.save()
+
+
+            yr=int(datetime.date.today().strftime('%Y'))
+            dt=int(datetime.date.today().strftime('%d'))
+            mt=int(datetime.date.today().strftime('%m'))
+            d=datetime.date(yr,mt,dt)
+            current_date=d.strftime("%Y%m%d")
+            order_number=current_date+str(data.id)
+            data.order_number=order_number
+
+
+            Payment_instence=Payment()
+            Payment_instence.user=request.user
+            if payment == '1':
+                Payment_instence.payment_method='paypal'
+            if payment == '2':
+                Payment_instence.payment_method='cash on delivery'
+            if payment == '3':  
+                Payment_instence.payment_method='bank transfer'
+            Payment_instence.status='pending'
+            Payment_instence.save()
+
+            data.payment=Payment_instence
+            data.save()
+            order_id=data.id
+            pay_instence=Payment_instence.id
+            for i in CartItem.objects.filter(is_active=True,user=request.user):
+                data.CartItem.add(i.id)
+                
+            order_status=OrderProduct()
+            order_status.order=data
+            order_status.user=request.user
+            order_status.status='pending'
+            qty=0
+            price=0
+            for i in CartItem.objects.filter(is_active=True,user=request.user):
+                qty += i.quantity
+                price += i.quantity * i.product.price
+            order_status.ordered=True
+            order_status.quantity=qty
+            order_status.product_price=price
+            order_status.save()
+            order_status_instence=order_status.id
+            order_id=signing.dumps(str(data.id))
+            payment_id=signing.dumps(str(Payment_instence.id))
+            order_status_id=signing.dumps(str(order_status.id))
+            context={
+                order_id:order_id,payment_id:payment_id,order_status_id:order_status_id
+            }
+            return redirect('payment_proccessing',context)
+    else:
+        return redirect('checkout')
+
+
+
+
+def payment_proccessing(request,*args,**kwargs):
+    order_id_pr=kwargs.get('order_id')
+    payment_id=kwargs.get('payment_id')
+    order_status_instence=kwargs.get('order_status_id')
+    order_id=signing.loads(order_id_pr)
+    payment_id=signing.loads(payment_id)
+    order_status_id=signing.loads('order_status_instence')
+
+
+    order_instence=get_object_or_404(Order,pk=order_id)
+    payment_instence=get_object_or_404(Payment,pk=payment_id)
+    order_status_instence=get_object_or_404(OrderProduct,pk=order_status_instence)
+    orderstatus_instences=get_object_or_404(Order,pk=order_id)
+    cart_items=CartItem.objects.filter(user=request.user)
+    grand_total=0
+    tax=0
+    total=0
+    quantity=0
+    discount=0
+
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax-20
+    discount=20
+    context={ 
+     
+        
+        
+    'grand_total':grand_total,
+    'tax':tax,
+    'total':total,
+    'discount':discount,
+    'order':orderstatus_instences,
+    'order_id':signing.dumps(str(order_status_instence.id)),
+    
+    }
+    
+    
+    return render(request,'orders/payment.html',context)
+
+
+
+
+
+
+    22-10-22
+
+    {% extends 'mkhome/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+
+<!-- ============================ COMPONENT 1 ================================= -->
+<h4 class="text-center mb-10">Review Your Order and Make Payment</h4>
+<div class="row">
+
+<aside class="col-lg-8">
+<div class="card">
+  <h5 class="card-header">
+    Billing Address
+  </h5>
+
+  <div class="card-body">
+    <p class="card-text mb-0">{{order.first_name}}</p>
+    <p class="card-text mb-0">{{order.address_line_1}}</p>
+    <p class="card-text mb-0">{{order.country}}  {{order.state}}</p>
+    <p class="card-text mb-0">{{order.city}}</p>
+    <p class="card-text mb-0">{{order.email}}</p>
+    <p class="card-text mb-0">{{order.phone}}</p>
+    {% if order.order_note %}
+    <b>Order Note :</b>{{order.order_note}}
+    {% endif %}
+    </div>
+</div>
+
+<div class="card mt-3">
+  <h5 class="card-header">
+    Payment Method
+  </h5>
+  <div class="card-body">
+    <p class="card-text">{{order.payment.payment_method}}</p>
+    </div>
+</div>
+<div class="card mt-3">
+  <h5 class="card-header">
+    Review Products
+  </h5>
+  <div class="card-body">
+    <table class="table table-borderless table-shopping-cart">
+<thead class="text-muted">
+<tr class="small text-uppercase">
+  <th scope="col">Product</th>
+  <th scope="col">variation</th>
+  <th scope="col" width="120">Quantity</th>
+  <th scope="col" width="120">Price</th>
+ 
+</tr>
+</thead>
+<tbody>
+  {% for item in order.CartItem.all %}
+<tr>
+	<td>
+		<figure class="itemside align-items-center">
+			<div class="aside"><img src="{{ item.product.images.url }}" alt="" style="width: 50px;"></div>
+			<figcaption class="info">
+				<a href="{{ cart_item.product_.get_url }}" class="title text-dark">{{ item.product.product_name }}</a>
+				<p class="small text-muted small"><br>
+
+          <td class="align-middle">
+            {% if item.variations.all %}
+            {% for item in item.variations.all %}
+           {{ item.variation_value }}<br>
+            {% endfor %}
+            {% endif %}
+        </td>
+				
+				
+        </p>
+			</figcaption>
+		</figure>
+	</td>
+	   <td>
+           <p  class="text-center p-4">
+               {{item.quantity}}
+           </p>
+       </td>
+	<td> 
+   
+		<div class="price-wrap"> 
+			<br>
+			
+			<small class="text-muted"> {{item.product.price}}</small>  
+		  
+    </div> <!-- price-wrap .// -->
+	</td>
+
+
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+    </div>
+</div>
+
+
+
+	</aside> <!-- col.// -->
+  
+	<aside class="col-lg-4">
+  
+		<div class="card mt-3">
+    
+		<div class="card-body">
+			<dl class="dlist-align">
+			  <dt>Total price:</dt>
+			  <dd class="text-right">₹{{ grand_total }}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Tax:</dt>
+			  <dd class="text-right"> ₹{{tax}}</dd>
+			</dl>
+      	<dl class="dlist-align">
+			  <dt>Discount:</dt>
+			  <dd class="text-right"> ₹{{discount}}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Grand Total:</dt>
+			  <dd class="text-right text-dark b"><strong>₹{{grand_total}}</strong></dd>
+			</dl>
+			<hr>
+			<p class="text-center mb-3">
+				<img src="{% static 'images/misc/payments.png' %}" height="26">
+			</p>
+			 <div id="">
+             <!-- paypal button will load-->
+            <button id='rzp-button1' class='btn btn-warning paywithRazorpay w-100 mt-2'>razor pay</button>
+             </div>
+			
+		</div> <!-- card-body.// -->
+		</div> <!-- card.// -->
+
+</aside> <!-- col.// -->
+
+
+</div> <!-- row.// -->
+<!-- ============================ COMPONENT 1 END .// ================================= -->
+
+</div> <!-- container .//  -->
+</section>
+
+<!-- ========================= SECTION CONTENT END// ========================= -->
+ {% block scripts %}
+ <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+    crossorigin="anonymous"></script>
+ <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+ <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+ {% comment %} <script src="{% static 'mkhomecss/js/checkout.js'%}"></script> {% endcomment %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+  var options = {
+  "key": "rzp_test_U071hjpAOlEkCH",
+  "amount": 11*100,
+  "currency": "INR",
+  "name": "lenso.com",
+  "description": "thank you",
+  "image": "{% static 'user/images/logo/logo_black.png' %}",
+  "order_id": "{{order_id}}",
+  'callback_url': 'http://127.0.0.1:8000/orders/proceed_to_pay/',
+  "handler": function (response) {
+    
+      alert(response.razorpay_payment_id);
+      alert(response.razorpay_order_id);
+     
+  },
+  "prefill": {
+    "name": "{{order.first_name}}",
+    "email": "{{order.email}}",
+    "contact": "{{order.phone}}"
+  },
+  "notes": {
+      "address": "Razorpay Corporate Office"
+  },
+  "theme": {
+      "color": "#3399cc"
+  }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response) {
+  alert(response.error.code);
+  alert(response.error.description);
+  alert(response.error.source);
+  alert(response.error.step);
+  alert(response.error.reason);
+  alert(response.error.metadata.order_id);
+  alert(response.error.metadata.payment_id);
+});
+var rzp1 = new Razorpay(options);
+document.getElementById('rzp-button1').onclick = function (e) {
+  console.log('success')
+  rzp1.open();
+  e.preventDefault();
+}
+
+</script>
+
+
+ {% endblock scripts %}
+
+
+
+{% endblock %}
+
+
+views
+
+
+def success_payment(request,**kwargs):
+    id=kwargs.get('order_id')
+    order_status_instences=get_object_or_404(Order,pk=id)
+    cart_items=CartItem.objects.filter(user=request.user)
+    grand_total=0
+    tax=0
+    total=0
+    quantity=0
+    discount=0
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax-20
+    discount=20
+    context={ 
+       
+    'grand_total':grand_total,
+    'tax':tax,
+    'total':total,
+    'discount':discount,
+    'order':order_status_instences,
+    
+    }
+    return render(request,'orders/payment.html',context)
+
+
+
+
+
+last views
+
+def place_order(request,total=0,quantity=0):
+    current_user=request.user
+
+
+    cart_items=CartItem.objects.filter(user=current_user)
+    cart_count=cart_items.count()
+    if cart_count<=0:
+        return redirect('store')
+    
+    grand_total=0
+    tax=0
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax
+     
+    order_id=''
+    pay_instence=''
+    order_status_instence=''
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        payment=request.POST['payment']
+        data=''
+        if form.is_valid():
+            data = Order()
+            data.user=current_user
+            data.first_name = form.cleaned_data['first_name']
+            data.last_name = form.cleaned_data['last_name']
+            data.phone = form.cleaned_data['phone']
+            data.email = form.cleaned_data['email']
+            data.address_line_1 = form.cleaned_data['address_line_1']
+            data.address_line_2 = form.cleaned_data['address_line_2']
+            data.country = form.cleaned_data['country']
+            data.state = form.cleaned_data['state']
+            data.city = form.cleaned_data['city']
+            data.post_code = form.cleaned_data['post_code']
+
+            data.order_total = grand_total
+            data.tax = tax
+            data.ip=request.META.get('REMOTE_ADDR')
+            # data.save()
+
+
+            yr=int(datetime.date.today().strftime('%Y'))
+            dt=int(datetime.date.today().strftime('%d'))
+            mt=int(datetime.date.today().strftime('%m'))
+            d=datetime.date(yr,mt,dt)
+            current_date=d.strftime("%Y%m%d")
+            order_number=current_date+str(data.id)
+            data.order_number=order_number
+
+
+            Payment_instence=Payment()
+            Payment_instence.user=request.user
+            if payment == '1':
+                Payment_instence.payment_method='paypal'
+            if payment == '2':
+                Payment_instence.payment_method='cash on delivery'
+            if payment == '3':  
+                Payment_instence.payment_method='bank transfer'
+            Payment_instence.status='pending'
+            Payment_instence.save()
+
+            data.payment=Payment_instence
+            data.save()
+            order_id=data.id
+            pay_instence=Payment_instence.id
+            for i in CartItem.objects.filter(is_active=True,user=request.user):
+                data.CartItem.add(i.id)
+                
+            order_status=OrderProduct()
+            order_status.order=data
+            order_status.user=request.user
+            order_status.status='pending'
+            qty=0
+            price=0
+            for i in CartItem.objects.filter(is_active=True,user=request.user):
+                qty += i.quantity
+                price += i.quantity * i.product.price
+            order_status.ordered=True
+            order_status.quantity=qty
+            order_status.product_price=price
+            order_status.save()
+            order_status_instence=order_status.id
+        return redirect('success_payment',order_id=order_id)
+    else:
+        return redirect('checkout')
+
+
+def payment_proccessing(request,*args,**kwargs):
+    id=kwargs.get('order_id')
+    Payment_id=kwargs.get('Payment')
+    order_status=kwargs.get('order_status')
+    order_status_instence=kwargs.get('order_status_instence')
+    orderstatus_instences=get_object_or_404(Order,pk=id)
+    cart_items=CartItem.objects.filter(user=request.user)
+    grand_total=0
+    tax=0
+    total=0
+    quantity=0
+    discount=0
+
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax-20
+    discount=20
+    context={ 
+       
+    'grand_total':grand_total,
+    'tax':tax,
+    'total':total,
+    'discount':discount,
+    'order':orderstatus_instences
+    }
+    
+    
+    return render(request,'orders/payment.html',context)
+
+
+
+
+
+def payments(request,*args,**kwargs):  
+    a= request.POST.get('a')
+    print(a)
+    return JsonResponse({'status':True,})
+
+
+
+
+
+def proceed_to_pay(request):
+    if request.method == "POST":
+        try:
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            order_id = request.POST.get('razorpay_order_id','')
+            
+            print(payment_id,order_id)
+            return HttpResponse('success')
+        except:
+            pass
+            return HttpResponse('failed')
+    else:
+        return HttpResponse('failed')
+
+def success_payment(request,**kwargs):
+    id=kwargs.get('order_id')
+    order_status_instences=get_object_or_404(Order,pk=id)
+    cart_items=CartItem.objects.filter(user=request.user)
+    grand_total=0
+    tax=0
+    total=0
+    quantity=0
+    discount=0
+    for cart_item in cart_items:
+        total +=(cart_item.product.price * cart_item.quantity)
+        quantity+=cart_item.quantity
+    tax=((2*total)/100)
+    grand_total=total+tax-20
+    discount=20
+    context={ 
+       
+    'grand_total':grand_total,
+    'tax':tax,
+    'total':total,
+    'discount':discount,
+    'order':order_status_instences,
+    
+    }
+    return render(request,'orders/payment.html',context)
+
+
+
+def order_complete(request):
+
+    order_number = request.GET.get('order_number')
+    transID = request.GET.get('payment_id')
+
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_products = OrderProduct.objects.filter(order_id=order.id)
+        payment = Payment.objects.get(payment_id=transID)
+        tax = (2 * order.order_total) / 100
+        subtotal = order.order_total - tax
+        subtotal = round(subtotal, 2)
+        grand_total = order.order_total
+        tax = round(tax, 2)
+        context = {
+            'user_name': order.user.full_name,
+            'date': order.date ,
+            'note': order.order_note,
+            'order': order,
+            'ordered_products': ordered_products,
+            'order_number': order_number,
+            'transID': transID,
+            'address': order.address,
+            'subtotal': subtotal,
+            'tax': tax,
+            'grand_total': grand_total,
+        }
+
+        return render(request, 'orders/order_complete.html',context)
+
+    except (Payment.DoesNotExist, Order.DoesNotExist):
+        return redirect('/')
+
+
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+html payment
+
+{% extends 'mkhome/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+
+<!-- ============================ COMPONENT 1 ================================= -->
+<h4 class="text-center mb-10">Review Your Order and Make Payment</h4>
+<div class="row">
+
+<aside class="col-lg-8">
+<div class="card">
+  <h5 class="card-header">
+    Billing Address
+  </h5>
+  <form >
+  
+  <div class="card-body">
+    <p class="card-text mb-0">{{order.first_name}}</p>
+    <p class="card-text mb-0">{{order.address_line_1}}</p>
+    <p class="card-text mb-0">{{order.country}}  {{order.state}}</p>
+    <p class="card-text mb-0">{{order.city}}</p>
+    <p class="card-text mb-0">{{order.email}}</p>
+    <p class="card-text mb-0">{{order.phone}}</p>
+    {% if order.order_note %}
+    <b>Order Note :</b>{{order.order_note}}
+    {% endif %}
+    </div>
+</div>
+
+<div class="card mt-3">
+  <h5 class="card-header">
+    Payment Method
+  </h5>
+  <div class="card-body">
+    <p class="card-text">{{order.payment.payment_method}}</p>
+    </div>
+</div>
+<div class="card mt-3">
+  <h5 class="card-header">
+    Review Products
+  </h5>
+  <div class="card-body">
+    <table class="table table-borderless table-shopping-cart">
+<thead class="text-muted">
+<tr class="small text-uppercase">
+  <th scope="col">Product</th>
+  <th scope="col">variation</th>
+  <th scope="col" width="120">Quantity</th>
+  <th scope="col" width="120">Price</th>
+ 
+</tr>
+</thead>
+<tbody>
+  {% for item in order.CartItem.all %}
+<tr>
+	<td>
+		<figure class="itemside align-items-center">
+			<div class="aside"><img src="{{ item.product.images.url }}" alt="" style="width: 50px;"></div>
+			<figcaption class="info">
+				<a href="{{ cart_item.product_.get_url }}" class="title text-dark">{{ item.product.product_name }}</a>
+				<p class="small text-muted small"><br>
+
+          <td class="align-middle">
+            {% if item.variations.all %}
+            {% for item in item.variations.all %}
+           {{ item.variation_value }}<br>
+            {% endfor %}
+            {% endif %}
+        </td>
+				
+				
+        </p>
+			</figcaption>
+		</figure>
+	</td>
+	   <td>
+           <p  class="text-center p-4">
+               {{item.quantity}}
+           </p>
+       </td>
+	<td> 
+   
+		<div class="price-wrap"> 
+			<br>
+			
+			<small class="text-muted"> {{item.product.price}}</small>  
+		  
+    </div> <!-- price-wrap .// -->
+	</td>
+
+
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+    </div>
+</div>
+
+
+
+	</aside> <!-- col.// -->
+  
+	<aside class="col-lg-4">
+  
+		<div class="card mt-3">
+    
+		<div class="card-body">
+			<dl class="dlist-align">
+			  <dt>Total price:</dt>
+			  <dd class="text-right">₹{{ grand_total }}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Tax:</dt>
+			  <dd class="text-right"> ₹{{tax}}</dd>
+			</dl>
+      	<dl class="dlist-align">
+			  <dt>Discount:</dt>
+			  <dd class="text-right"> ₹{{discount}}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Grand Total:</dt>
+			  <dd class="text-right text-dark b"><strong>₹{{grand_total}}</strong></dd>
+			</dl>
+			<hr>
+			<p class="text-center mb-3">
+				<img src="{% static 'images/misc/payments.png' %}" height="26">
+			</p>
+			 <div id="">
+             <!-- paypal button will load-->
+            <button id="pay-btn" class='btn btn-warning paywithRazorpay w-100 mt-2'>razor pay</button>
+             </div>
+			
+		</div> <!-- card-body.// -->
+		</div> <!-- card.// -->
+  </form>
+</aside> <!-- col.// -->
+
+
+</div> <!-- row.// -->
+<!-- ============================ COMPONENT 1 END .// ================================= -->
+
+</div> <!-- container .//  -->
+</section>
+
+<!-- ========================= SECTION CONTENT END// ========================= -->
+ {% block scripts %}
+ <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI="
+    crossorigin="anonymous"></script>
+ <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+ <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+ {% comment %} <script src="{% static 'mkhomecss/js/checkout.js'%}"></script> {% endcomment %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+  
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+// setting amount 
+var amount         = {{grand_total}}
+var url            = "{% url 'payments' %}"
+var csrftoken      = getCookie('csrftoken');
+var orderID        = {{order.order_number}}
+var payment_method = "Razorpay"
+var redirect_url   = "{% url 'order_complete' %}"
+ 
+  var options = {
+       
+    // Enter the Key ID generated from the Dashboard
+    key: "{{rzp_test_Oazk7hWZkgpMsZ}}",
+     
+    // Amount is in currency subunits.
+    // Default currency is INR. Hence,
+    // 50000 refers to 50000 paise
+     
+    amount: "{{ razorpay_amount }}",
+    currency: "{{ 'INR' }}",
+     
+    // Your/store name.
+    name: "lenso.com",
+     
+    // Pass the `id` obtained in the response of Step 1
+    order_id: "{{ razorpay_order_id }}",
+    callback_url: "{{ callback_url }}",
+  };
+   
+  // initialise razorpay with the options.
+  var rzp1 = new Razorpay(options);
+   
+  // add event listener to the payment button.
+  document.getElementById("pay-btn").addEventListener("click",(e)=> {
+    rzp1.open();
+    e.preventDefault();
+  });
+
+
+
+</script>
+
+
+ {% endblock scripts %}
+
+
+
+{% endblock %}
+

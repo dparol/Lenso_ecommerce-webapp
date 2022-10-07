@@ -1,0 +1,13 @@
+{% extends 'lensoadmin/adminbase.html' %}
+{% load static %}
+{% block content %}
+  name:{{user.first_name}}<br>
+  email:{{user.email}}<br>
+  order details:{% for orders in order %}
+  {{orders.product.product_name}}<br>
+  
+
+  {{orders.order.order_number}}
+  {% endfor %}
+    
+{% endblock %}

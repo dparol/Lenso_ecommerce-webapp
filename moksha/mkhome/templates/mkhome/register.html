@@ -1,0 +1,42 @@
+{% load static  %}
+  
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
+  
+                  <form class="mx-1 mx-md-4" method='POST' >
+                    {% csrf_token %}
+  
+                   
+                        
+                        {{ form.firstname }}
+                        <label class="form-label" for="form3Example1c">Your Name</label>
+                        <br>
+
+                        {{ form.lastname }}
+                        <label class="form-label" for="form3Example1c">Your Name</label>
+                        <br>
+
+                        {{ form.email }}
+                        <label class="form-label" for="form3Example1c">Your Name</label>
+                        <br>
+  
+                   
+                        {{ form.phone_number }}
+                        <label class="form-label" for="form3Example3c">Your Email</label>
+                        <br>
+                        
+                        {{ form.password1 }}
+                        <label class="form-label" for="form3Example4c">Password</label>
+                        <br>
+  
+                        {{ form.password2 }}
+                        <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                      
+                        <br>
+  
+                      <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    
+                    {{form.success}}
+  
+                  </form>
+  
+                

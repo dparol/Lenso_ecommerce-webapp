@@ -1,0 +1,58 @@
+{% extends 'lensoadmin/adminbase.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Recent Salse</h6>
+            <a href="">Show All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+
+                        <th scope="col">first_name</th>
+                        <th scope="col">last_name</th>
+                        <th scope="col">username</th>
+                        <th scope="col">email</th>
+                        <th scope="col">phone_number</th>
+                        <th scope="col">is_active</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                 {% for user_detail in user_details %}
+                    <tr>
+                        <td><input class="form-check-input" type="checkbox"></td>
+                        <td>{{user_detail.first_name}}</td>
+                        <td>{{user_detail.last_name}}</td>
+                        <td>{{user_detail.username}}</td>
+                        
+                        <td>{{user_detail.email}}</td>
+
+                        <td>{{user_detail.phone_number}}</td>
+                        <td>{{user_detail.is_active}}</td>
+
+  
+
+                        <td><a href="{% url 'single_user_details' user_detail.id %}">Info</a></td>
+                        <td><a href="{% url 'user_block' user_detail.id %}">BLOCK</a></td>
+                        <td><a href="{% url 'user_unblock' user_detail.id %}">UNBLOCK</a></td>
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+ </div>
+ <!-- Recent Sales End -->
+ 
+ 
+
+{% endblock %}

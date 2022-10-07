@@ -1,0 +1,45 @@
+ {% extends 'lensoadmin/adminbase.html' %}
+ {% load static %}
+ {% block content %}
+ <div class="container-fluid pt-4 px-4">
+    <div class="bg-secondary text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">Recent Salse</h6>
+            <a href="">Show All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-white">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                        <th scope="col">category_name</th>
+                        <th scope="col">slug</th>
+                        <th scope="col">description</th>
+                        <th scope="col">cat_image</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categories in category %}
+                    <tr class="text-white">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                        <th scope="col">{{categories.category_name}}</th>
+                        <th scope="col"{{categories.slug}}</th>
+                        <th scope="col">{{categories.description}}</th>
+                        <th scope="col">{{categories.cat_image.url}}</th>
+                        <th scope="col" ><a href="{% url 'main_category_edit' categories.id %}">edit</a></th>
+
+                      
+                    </tr>
+                    {% endfor %}
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Recent Sales End -->
+
+
+
+ {% endblock %}

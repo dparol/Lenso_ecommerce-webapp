@@ -1,0 +1,91 @@
+{% extends 'mkhome/userprofilebase.html' %} 
+{% load static %}
+{% block content %}
+
+{% comment %} {% for summeries in summery %}
+{{summeries.product}}<br>
+{{summeries.variation.variation_category}}<br>
+{{summeries.quantity}}<br>
+<img src="{{summeries.product.images.url}}" style="height:50px; width:60px;"><br>
+
+{{summeries.product_price}}
+{% endfor %} {% endcomment %}
+{% comment %} <div class="col-lg-9 " >
+    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-light pr-3">Order Total</span></h5>
+    <div class="bg-light p-30 mb-5">
+        <div class="border-bottom">
+            <table class="table table-light table-borderless table-hover text-center mb-0">
+                <thead class="thead-dark">
+                    <tr>
+                      
+                        <th>Products</th>
+                        <th>Variations</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        
+                    </tr>
+                </thead>
+                
+                <tbody class="align-middle">
+                     {% for cart_item in summery %}
+                    <tr>
+                        
+                        <td class="align-middle"><img src="{{ cart_item.product.images.url }}" alt="" style="width: 50px;"> {{cart_item.product.product_name}}</td>
+                        <td class="align-middle">
+                            {% if cart_item.variation.all %}
+                            {% for item in cart_item.variation.all %}
+                           {{ item.variation_value }}<br>
+                            {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">${{ cart_item.product.price }}</td>
+                      
+                       
+                        <td >{{ cart_item.quantity }}
+                          
+                        </td>
+                       
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+            </table>
+            
+            
+            
+        </div> {% endcomment %}
+        {% for products in summery  %}
+        <div class="col-lg-9 " >
+            <div class="  px-2" >
+                <div class="ordercard-header bg-white">
+                  <div class="row justify-content-between">
+                    <div class="col">
+                        <p class="text-muted"> Order ID  <span class="font-weight-bold text-dark">{{order_number}}</span></p> 
+                        <p class="text-muted"> Status <span class="font-weight-bold text-dark">{{products.order.order_status}}</span> </p></div>
+                        <p class="text-muted"> Place On <span class="font-weight-bold text-dark">{{order_status.order_confirmed_date}}</span> </p></div>
+
+                        <div class="flex-col my-auto">
+                            <h6 class="ml-auto mr-3">
+                               
+                            </h6>
+                        </div>
+                  </div>
+                </div>
+                
+                <div class="ordercard-orderbody">
+                    <div class="media flex-column flex-sm-row">
+                        <div class="media-orderbody ">
+                            <h5 class="bold"></h5>
+                            <p class="text-muted"> Qt: {{products.quantity}} Pair</p>
+                            <h4 class="mt-3 mb-4 bold"> <span class="mt-5">&#x20B9;</span> {{products.product.price}} <span class="small text-muted"> via (COD) </span></h4>
+                            <p class="text-muted bold " >Tracking Status on: <span class="orderToday" style="color:green;">{{order_status.delivered_date}}Pending</span></p>
+                           
+                        </div><img class="align-self-center img-fluid ml-5 " src="{{products.product.images.url}}" width="180 " height="180">
+                    </div>
+                </div>
+                {% endfor %}
+               
+            </div>
+        </div>
+
+{% endblock %}
