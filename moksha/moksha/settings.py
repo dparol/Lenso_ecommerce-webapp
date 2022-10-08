@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&^$ex#97zp2g%m)9r)a&@)7svd(s+_adycro0v0s=9^!#0ri=8'
+SECRET_KEY=config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,13 +87,14 @@ AUTH_USER_MODEL = 'mkhome.Account'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'moksha',
-       'USER': 'postgres',
-       'PASSWORD': 'qwedfgbnm',
+       'NAME':config('NAME'),
+       'USER':config ('USER'),
+       'PASSWORD':config ('PASSWORD'),
        'HOST': 'localhost',
        'PORT': '5432',
    }
 }
+
 
 
 # Password validation
@@ -152,9 +154,9 @@ MESSAGE_TAGS ={
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'wirelezbrain01@gmail.com'
-EMAIL_HOST_PASSWORD = 'mzhw mfbi aoyv qpuz'
+EMAIL_HOST_USER =config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 
-RAZORPAY_KEY_ID = 'rzp_test_Oazk7hWZkgpMsZ'
-RAZORPAY_KEY_SECRET = '7R6zThUmDLNEzwKvYk9N4Lar'
+RAZORPAY_KEY_ID =config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET =config('RAZORPAY_KEY_SECRET')

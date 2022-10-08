@@ -1,0 +1,24 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/miniproject/Lenso_ecommerce-webapp/moksha
+ExecStart=/home/ubuntu/miniproject/Lenso_ecommerce-webapp/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          moksha.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+/home/ubuntu/miniproject/Lenso_ecommerce-webapp/moksha
+/home/ubuntu/miniproject/Lenso_ecommerce-webapp/moksha/mkenv
+
