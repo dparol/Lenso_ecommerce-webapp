@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY='django-insecure-&^$ex#97zp2g%m)9r)a&@)7svd(s+_adycro0v0s=9^!#0ri=8'
+SECRET_KEY=config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -84,17 +84,26 @@ AUTH_USER_MODEL = 'mkhome.Account'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME':config('NAME'),
+#        'USER':config ('USER'),
+#        'PASSWORD':config ('PASSWORD'),
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
+# }
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME':config('NAME'),
-       'USER':config ('USER'),
-       'PASSWORD':config ('PASSWORD'),
+       'NAME': 'moksha',
+       'USER': 'postgres',
+       'PASSWORD': 'qwedfgbnm',
        'HOST': 'localhost',
        'PORT': '5432',
    }
 }
-
 
 
 # Password validation
