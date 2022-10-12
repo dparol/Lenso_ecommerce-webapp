@@ -1,0 +1,11 @@
+SECRET_KEY="django-insecure-&^$ex#97zp2g%m)9r)a&@)7svd(s+_adycro0v0s=9^!#0ri=8"
+
+DB_NAME=myproject
+DB_USER=lensoweb
+DB_PASSWORD=lensoweb
+
+RAZORPAY_KEY_ID=rzp_test_Oazk7hWZkgpMsZ
+RAZORPAY_KEY_SECRET=7R6zThUmDLNEzwKvYk9N4Lar
+
+EMAIL_HOST_USER=wirelezbrain01@gmail.com
+EMAIL_HOST_PASSWORD=mzhw mfbi aoyv qpuz

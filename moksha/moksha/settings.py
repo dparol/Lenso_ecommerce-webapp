@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY=config('SECRET_KEY')
+SECRET_KEY="django-insecure-&^$ex#97zp2g%m)9r)a&@)7svd(s+_adycro0v0s=9^!#0ri=8"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
+    
 ]
 
 MIDDLEWARE = [
@@ -85,16 +87,15 @@ AUTH_USER_MODEL = 'mkhome.Account'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME':config('NAME'),
-       'USER':config ('USER'),
-       'PASSWORD':config ('PASSWORD'),
-       'HOST': 'localhost',
-       'PORT': '5432',
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'myproject',
+        'USER': 'lensoweb',
+        'PASSWORD': 'lensoweb',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
 }
-
 
 
 # Password validation
@@ -128,16 +129,26 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
+AWS_ACCESS_KEY_ID = 'AKIAWJOALD27V45F2UP2'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'lensowebbucket'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
+AWS_LOCATION = 'static'
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS=[
-    os.path.join(BASE_DIR,'mkhome/static')
+
+STATICFILES_DIRS = [    
+    'mkhome/static',
+    
+    
 ]
-STATIC_ROOT=os.path.join(BASE_DIR,'img_files')
-
-# Default primary key field type
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#DEFAULT_FILE_STORAGE = '.media_storages.MediaStorage'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -152,11 +163,16 @@ MESSAGE_TAGS ={
 
 #smtp configaration
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER =config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD =config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER="wirelezbrain01@gmail.com"
+EMAIL_HOST_PASSWORD="mzhw mfbi aoyv qpuz"
 EMAIL_USE_TLS = True
 
-RAZORPAY_KEY_ID =config('RAZORPAY_KEY_ID')
-RAZORPAY_KEY_SECRET =config('RAZORPAY_KEY_SECRET')
+
+RAZORPAY_KEY_ID="rzp_test_Oazk7hWZkgpMsZ"
+RAZORPAY_KEY_SECRET="7R6zThUmDLNEzwKvYk9N4Lar"
+
